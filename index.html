@@ -1,11 +1,11 @@
 <!-- 
 ================================================================================
- 项目名称：鹰眼通 -超级公式精算师
- 当前版本：v5.3 (独立排行榜 + 固定Tab UI)
+ 项目名称：鹰眼通超级公式智算师
+ 当前版本：v7.5 (品牌统一 + 特码范围公式接入)
  更新日志：
-   [v5.3] 1. 彻底修复顶部Tab被挤压的问题，右侧固定“胜率榜”按钮，第一眼可见。
-          2. 排行榜新增“分类选择器”，各分类独立排名，不再混杂。
-          3. 完美保留原有的正反向预测与共振拦截逻辑。
+   [v7.5] 1. 软件名称全局替换为“鹰眼通超级公式智算师”。
+          2. 新增【特码范围】独立标签，接入“A/B中心点左延右延7码”推演。
+          3. 完美继承胜率>80%双期拦截逻辑。
 ================================================================================
 -->
 <!DOCTYPE html>
@@ -13,249 +13,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>鹰眼通 -超级公式精算师 v5.3</title>
+<title>鹰眼通超级公式智算师 v7.5</title>
 <style>
     :root {
-        --bg-base: #f4f7fb;
-        --bg-glow: radial-gradient(circle at 10% 20%, #e0e7ff 0%, transparent 40%),
-                   radial-gradient(circle at 90% 80%, #fae8ff 0%, transparent 40%),
-                   radial-gradient(circle at 50% 50%, #ffffff 0%, transparent 100%);
-        --glass-bg: rgba(255, 255, 255, 0.65);
-        --glass-border: rgba(255, 255, 255, 0.9);
-        --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
-        --text-main: #1e293b;
-        --text-sub: #64748b;
-        
-        --card-bg: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 100%);
-        --card-border: rgba(255, 255, 255, 0.08);
-        
-        --cyan: #38bdf8;
-        --gold: #fbbf24;
-        --green: #10b981;
-        --red: #f43f5e;
+        --bg-base: #f4f7fb; --bg-glow: radial-gradient(circle at 10% 20%, #e0e7ff 0%, transparent 40%), radial-gradient(circle at 90% 80%, #fae8ff 0%, transparent 40%), radial-gradient(circle at 50% 50%, #ffffff 0%, transparent 100%);
+        --glass-bg: rgba(255, 255, 255, 0.65); --glass-border: rgba(255, 255, 255, 0.9); --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+        --text-main: #1e293b; --text-sub: #64748b; --card-bg: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 100%); --card-border: rgba(255, 255, 255, 0.08);
+        --cyan: #38bdf8; --gold: #fbbf24; --green: #10b981; --red: #f43f5e;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-base); background-image: var(--bg-glow); background-attachment: fixed; color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 15px; user-select: none; overflow-x: hidden; }
+    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; position: relative; }
     
-    body {
-        background-color: var(--bg-base);
-        background-image: var(--bg-glow);
-        background-attachment: fixed;
-        color: var(--text-main);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 15px;
-        user-select: none;
-        overflow-x: hidden;
-    }
-
-    .container {
-        width: 100%; max-width: 480px;
-        display: flex; flex-direction: column; gap: 16px;
-    }
-    
-    .header {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 10px 5px;
-    }
-    .brand { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; color: #0f172a;}
+    /* 头部 */
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; }
+    .brand { font-size: 17px; font-weight: 900; display: flex; align-items: center; gap: 8px; color: #0f172a; white-space: nowrap;}
     .version-tag { font-size: 10px; background: #0f172a; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
+    .vip-tag { font-size: 10px; background: linear-gradient(135deg, #FDE047, #D97706); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; display: none;}
     .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px;}
-    .data-tag { font-size: 10px; background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); padding: 2px 6px; border-radius: 4px; color: var(--text-sub); }
+    .data-tag { font-size: 10px; background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); padding: 2px 6px; border-radius: 4px; color: var(--text-sub); font-weight: bold;}
     .period-select { font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.05); background: #fff; color: #2563eb; font-weight: bold; outline: none; }
-
-    .draw-section {
-        padding: 15px 20px; background: #fff; border-bottom: 1px solid var(--glass-border);
-        display: flex; flex-direction: column; align-items: center; gap: 12px;
-        border-radius: 16px; box-shadow: var(--glass-shadow);
-        position: relative; overflow: hidden;
-    }
+    
+    /* 开奖区 */
+    .draw-section { padding: 15px 20px; background: #fff; border-bottom: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 12px; border-radius: 16px; box-shadow: var(--glass-shadow); position: relative; overflow: hidden; }
     .draw-info { font-size: 13px; color: var(--text-sub); font-weight: 900; width: 100%; display: flex; justify-content: space-between; align-items: baseline;}
     .draw-balls { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
-    
-    .ball-3d {
-        width: 34px; height: 34px; border-radius: 50%;
-        display: flex; justify-content: center; align-items: center;
-        font-size: 14px; font-weight: 900; color: #fff;
-        box-shadow: inset -2px -2px 6px rgba(0,0,0,0.55), inset 2px 2px 4px rgba(255,255,255,0.35), 0 3px 5px rgba(0,0,0,0.2);
-        position: relative; text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-        font-family: "SF Mono", Consolas, monospace;
-    }
-    .ball-3d::after {
-        content: ''; position: absolute; top: 15%; left: 20%;
-        width: 25%; height: 25%; border-radius: 50%;
-        background: rgba(255,255,255,0.6); filter: blur(1.5px);
-    }
+    .ball-3d { width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 900; color: #fff; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.55), inset 2px 2px 4px rgba(255,255,255,0.35), 0 3px 5px rgba(0,0,0,0.2); position: relative; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); font-family: "SF Mono", Consolas, monospace; }
+    .ball-3d::after { content: ''; position: absolute; top: 15%; left: 20%; width: 25%; height: 25%; border-radius: 50%; background: rgba(255,255,255,0.6); filter: blur(1.5px); }
     .wave-red { background: radial-gradient(circle at 35% 35%, #ff6b6b, #b90000); }
     .wave-blue { background: radial-gradient(circle at 35% 35%, #74b9ff, #0033cc); }
     .wave-green { background: radial-gradient(circle at 35% 35%, #55efc4, #007733); }
-    .ball-special {
-        width: 38px; height: 38px; font-size: 15px;
-        border: 2px solid var(--gold);
-        box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
-        margin-left: 8px;
-    }
+    .ball-special { width: 38px; height: 38px; font-size: 15px; border: 2px solid var(--gold); box-shadow: 0 0 12px rgba(251, 191, 36, 0.5); margin-left: 8px; }
     .plus-sign { color: #94a3b8; font-size: 18px; font-weight: 900; margin: 0 2px; }
-
-    .glass-card-light {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        box-shadow: var(--glass-shadow);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
+    
+    /* 操作面板 */
+    .glass-card-light { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); border-radius: 16px; overflow: hidden; }
     .control-panel { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    
-    /* 优化后的 Tabs 布局：左侧滑动，右侧固定 */
-    .tabs-wrap {
-        display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
-    }
-    .tabs-left { 
-        flex: 1; display: flex; gap: 6px; background: rgba(255,255,255,0.5); border-radius: 8px; padding: 4px; 
-        overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    }
+    .tabs-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .tabs-left { flex: 1; display: flex; gap: 6px; background: rgba(255,255,255,0.5); border-radius: 8px; padding: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .tabs-left::-webkit-scrollbar { display: none; }
-    .tab-btn {
-        text-align: center; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold;
-        color: var(--text-sub); cursor: pointer; border: none; background: transparent; transition: 0.2s; white-space: nowrap;
-    }
+    .tab-btn { text-align: center; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; color: var(--text-sub); cursor: pointer; border: none; background: transparent; transition: 0.2s; white-space: nowrap; }
     .tab-btn.active { background: #fff; color: #2563eb; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    
-    .btn-rank-fixed {
-        flex-shrink: 0; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 900;
-        background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; border: none; cursor: pointer;
-        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); transition: 0.2s;
-    }
+    .btn-rank-fixed { flex-shrink: 0; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); transition: 0.2s; }
     .btn-rank-fixed:active { transform: scale(0.95); }
-
-    .formula-selector {
-        width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1;
-        font-size: 14px; font-weight: bold; color: #1e293b; background: #fff; outline: none;
-        appearance: none; -webkit-appearance: none; cursor: pointer;
-        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto;
-    }
-
+    
+    .formula-selector { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 14px; font-weight: bold; color: #1e293b; background: #fff; outline: none; appearance: none; -webkit-appearance: none; cursor: pointer; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 12px auto; }
     .action-btns { display: flex; gap: 10px; margin-top: 4px;}
-    .btn-run {
-        flex: 1; padding: 14px 0; background: #0f172a; color: #fff; border: none; border-radius: 10px; 
-        font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s;
-    }
+    .btn-run { flex: 1; padding: 14px 0; background: #0f172a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     .btn-run:active { transform: scale(0.97); }
     
-    .main-result-dark { 
-        padding: 24px; 
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-        border-radius: 20px;
-        position: relative; overflow: hidden;
-    }
-    
-    .watermark {
-        position: absolute;
-        top: 0; right: 0;
-        background: linear-gradient(135deg, #FDE047, #D97706);
-        color: #000000;
-        font-size: 12px; font-weight: 900;
-        padding: 6px 14px;
-        border-bottom-left-radius: 12px;
-        box-shadow: -2px 2px 10px rgba(0,0,0,0.3);
-        z-index: 10; letter-spacing: 1px;
-    }
-
+    /* 核心结果卡片 */
+    .main-result-dark { padding: 24px; background: var(--card-bg); border: 1px solid var(--card-border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1); border-radius: 20px; position: relative; overflow: hidden; }
+    .watermark { position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #FDE047, #D97706); color: #000000; font-size: 12px; font-weight: 900; padding: 6px 14px; border-bottom-left-radius: 12px; box-shadow: -2px 2px 10px rgba(0,0,0,0.3); z-index: 10; letter-spacing: 1px; }
     .res-label { font-size: 14px; color: #e2e8f0; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: 500; padding-right: 80px;}
     .last-info { font-size: 15px; color: var(--gold); font-weight: 900; font-family: monospace; position: absolute; right: 24px; top: 36px;}
     .prev-info { font-size: 12px; color: #94a3b8; margin-bottom: 12px; font-family: monospace;}
-    
-    .res-main-text {
-        font-size: 32px; font-weight: 900; color: var(--gold); 
-        letter-spacing: 3px; line-height: 1.4; text-align: center;
-        text-shadow: 0 0 20px rgba(251,191,36,0.5), 0 0 40px rgba(251,191,36,0.2);
-        margin: 25px 0 15px; word-break: break-all;
-    }
+    .res-main-text { font-size: 28px; font-weight: 900; color: var(--gold); letter-spacing: 2px; line-height: 1.4; text-align: center; text-shadow: 0 0 20px rgba(251,191,36,0.5), 0 0 40px rgba(251,191,36,0.2); margin: 20px 0 15px; word-break: break-all; transition: 0.3s; }
     .res-main-text.dim { color: #94a3b8; text-shadow: none; font-size: 24px;}
-    
+    .res-main-text.locked { color: #94a3b8; font-size: 22px; letter-spacing: 2px; text-shadow: none; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.2); display: flex; flex-direction: column; align-items: center; gap: 8px;}
+    .lock-icon { font-size: 32px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); margin-bottom: 5px;}
+
     .extra-info { font-size: 12px; color: #cbd5e1; text-align: center; line-height: 1.6; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 15px;}
     .extra-info span { color: var(--gold); font-weight: bold; font-family: monospace;}
     .disclaimer { font-size: 11px; color: #fbbf24; text-align: center; margin-top: 10px; opacity: 0.8; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;}
-
+    
+    /* 数据统计 */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat-card { padding: 15px; display: flex; flex-direction: column; justify-content: center; }
     .stat-label { font-size: 11px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600;}
     .stat-value { font-weight: 900; color: #0f172a; display: flex; flex-direction: column; gap: 2px;}
-    
     .rate-main { font-size: 22px; font-family: monospace; line-height: 1;}
     .rate-sub { font-size: 11px; color: var(--text-sub); font-family: sans-serif; font-weight: normal;}
-    
-    .val-rate { color: var(--green); }
-    .val-win { color: #0284c7; }
-    .val-loss { color: var(--red); }
-    
+    .val-rate { color: var(--green); } .val-win { color: #0284c7; } .val-loss { color: var(--red); }
     .stat-row-val { font-size: 20px; font-family: monospace; line-height: 1.2;}
     .stat-row-val span.sub { font-size: 12px; color: var(--text-sub); font-weight: normal; font-family: sans-serif;}
-
-    .panel-title { 
-        padding: 16px; font-size: 13px; font-weight: bold; color: var(--text-main); 
-        display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 4px solid #2563eb;
-    }
-    .panel-content { padding: 0 16px 16px; display: block; }
-    .panel-content.hide { display: none; }
-
+    
+    /* 面板及日志 */
+    .panel-title { padding: 16px; font-size: 13px; font-weight: bold; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 4px solid #2563eb; }
+    .panel-content { padding: 0 16px 16px; display: block; } .panel-content.hide { display: none; }
     .log-list { display: flex; flex-direction: column; gap: 8px; max-height: 450px; overflow-y: auto; padding-right: 4px;}
-    .log-item { 
-        display: flex; align-items: center;
-        background: #fff; padding: 10px 12px; border-radius: 8px; 
-        border: 1px solid rgba(0,0,0,0.05); font-size: 13px; font-family: monospace;
-    }
-    .log-item.hit { border-left: 4px solid var(--green); }
-    .log-item.miss { border-left: 4px solid var(--red); }
-    
+    .log-item { display: flex; align-items: center; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); font-size: 13px; font-family: monospace; }
+    .log-item.hit { border-left: 4px solid var(--green); } .log-item.miss { border-left: 4px solid var(--red); }
     .log-period { font-weight: bold; color: #64748b; width: 75px; flex-shrink: 0;}
-    
     .log-detail { flex: 1; text-align: center; font-weight: bold; color: #1e293b; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; padding: 0 5px;}
     .log-predict-box { color: #0f172a; font-size: 13px; word-break: break-all; line-height: 1.4;}
     .log-vs { font-size: 11px; color: #94a3b8; font-weight: normal; margin: 2px 0;}
     .log-actual-box { color: var(--red); font-size: 12px; font-weight: normal; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; word-break: break-all;}
     .log-item.hit .log-actual-box { color: var(--green); background: #ecfdf5;}
-    
     .log-status { font-weight: 900; font-size: 14px; width: 35px; text-align: right; flex-shrink: 0;}
-    .log-item.hit .log-status { color: var(--green); }
-    .log-item.miss .log-status { color: var(--red); }
-
-    /* 排行榜专属优化 */
+    .log-item.hit .log-status { color: var(--green); } .log-item.miss .log-status { color: var(--red); }
+    
+    /* 排行榜 */
     .rank-control { display: flex; gap: 10px; margin-bottom: 15px; }
     .rank-control select { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: bold; outline: none;}
-    
     .rank-list { display: flex; flex-direction: column; gap: 8px; }
-    .rank-item {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 15px; background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);
-        cursor: pointer; transition: 0.2s;
-    }
+    .rank-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
     .rank-item:hover { border-color: #2563eb; background: #f8fafc; }
-    .rank-name { font-size: 14px; font-weight: bold; color: #1e293b; }
+    .rank-name { font-size: 14px; font-weight: bold; color: #1e293b; display: flex; align-items: center; gap: 6px;}
     .rank-stats { display: flex; align-items: center; gap: 12px; font-size: 13px; font-family: monospace; }
     .rank-rate { color: var(--green); font-weight: 900; font-size: 16px; }
+    
+    .badge-vip { font-size: 10px; background: #fef2f2; color: #e11d48; border: 1px solid #fecdd3; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 6px;}
+    .badge-free { font-size: 10px; background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 6px;}
 
+    /* 说明面板专属样式 */
+    .help-content { font-size: 13px; line-height: 1.6; color: var(--text-main); }
+    .help-block { margin-bottom: 12px; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);}
+    .help-block:last-child { margin-bottom: 0; }
+    .help-title { font-weight: bold; color: #1e3a8a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;}
+    .help-text { color: var(--text-sub); font-size: 12px; }
+    .help-text strong { color: #e11d48; }
+    
+    /* 提示框 & 弹窗 */
     .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 14px 24px; border-radius: 12px; z-index: 10000; opacity: 0; pointer-events: none; transition: 0.3s; font-size: 14px; font-weight: bold; backdrop-filter: blur(10px); }
     .toast.show { opacity: 1; }
+    .overlay { position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; padding: 20px; }
+    .overlay.show { display: flex; }
+    .overlay-card { background: #fff; border-radius: 20px; width: 100%; max-width: 340px; padding: 30px 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; position: relative; overflow: hidden; }
+    .overlay-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #FDE047, #D97706); }
+    
+    .btn-contact { width: 100%; padding: 15px; background: linear-gradient(135deg, #FDE047, #D97706); color: #000; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 15px; display: inline-block; text-decoration: none;}
+    .btn-contact:active { transform: scale(0.97); }
+    .btn-close { background: transparent; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 10px; }
+    .vip-lock-icon { font-size: 48px; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+    .vip-title { font-size: 20px; font-weight: 900; color: #1e293b; margin-bottom: 10px; }
+    .vip-desc { font-size: 13px; color: #64748b; line-height: 1.6; margin-bottom: 25px; }
 </style>
 </head>
 <body>
     <div id="toast" class="toast">提示</div>
     
-    <div class="container">
+    <!-- VIP 弹窗 (纯客服引导) -->
+    <div class="overlay" id="vipLockModal">
+        <div class="overlay-card">
+            <div class="vip-lock-icon">🔒</div>
+            <div class="vip-title">本期高级功能已锁定</div>
+            <div class="vip-desc" id="vipLockReason">系统检测到双数期限制。<br>该公式胜率较高，属于高阶加密模型，请升级 VIP 解锁。</div>
+            
+            <a href="https://t.me/onyx668" target="_blank" class="btn-contact">联系客服开通 VIP 权限</a>
+            <button class="btn-close" onclick="document.getElementById('vipLockModal').classList.remove('show')">暂不升级，先看别的</button>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
         <div class="header">
-            <div class="brand">鹰眼通 -超级公式精算师 <span class="version-tag">v5.3</span></div>
+            <div class="brand">鹰眼通超级公式智算师 <span class="version-tag">v7.5</span> <span class="vip-tag" id="vipBadge">VIP</span></div>
             <div class="header-right">
-                <span class="data-tag" id="dataSourceTag">连接中...</span>
+                <span class="data-tag" id="dataSourceTag">正在同步数据...</span>
                 <select class="period-select" id="selPeriod" onchange="onPeriodChange()">
                     <option value="30">回测: 30 期</option>
                     <option value="50" selected>回测: 50 期</option>
@@ -276,13 +180,14 @@
         </div>
         
         <div class="glass-card-light control-panel">
-            <!-- 优化布局：左侧滑动，右侧固定胜率榜 -->
             <div class="tabs-wrap">
                 <div class="tabs-left" id="tabBar">
                     <button class="tab-btn active" data-type="tailKill" onclick="switchTab('tailKill')">杀尾公式</button>
                     <button class="tab-btn" data-type="tailPredict" onclick="switchTab('tailPredict')">出尾公式</button>
+                    <button class="tab-btn" data-type="wavePredict" onclick="switchTab('wavePredict')">出波公式</button>
                     <button class="tab-btn" data-type="zodiacKill" onclick="switchTab('zodiacKill')">杀肖公式</button>
                     <button class="tab-btn" data-type="zodiacPredict" onclick="switchTab('zodiacPredict')">出肖公式</button>
+                    <button class="tab-btn" data-type="codeRange" onclick="switchTab('codeRange')">特码范围</button>
                     <button class="tab-btn" data-type="codeKill" onclick="switchTab('codeKill')">杀码公式</button>
                     <button class="tab-btn" data-type="tactic" onclick="switchTab('tactic')">围码公式</button>
                 </div>
@@ -293,14 +198,15 @@
                 <select class="formula-selector" id="selFormula" onchange="runSingle()"></select>
             </div>
 
-            <!-- 排行榜区域专属：增加分类下拉框 -->
             <div id="rankArea" style="display: none;">
                 <div class="rank-control">
                     <select id="selRankCategory" onchange="generateRanking()">
                         <option value="tailKill">杀尾公式排名</option>
                         <option value="zodiacKill">杀肖公式排名</option>
+                        <option value="wavePredict">出波公式排名</option>
                         <option value="tailPredict">出尾公式排名</option>
                         <option value="zodiacPredict">出肖公式排名</option>
+                        <option value="codeRange">特码范围排名</option>
                         <option value="codeKill">杀码公式排名</option>
                         <option value="tactic">围码公式排名</option>
                     </select>
@@ -313,9 +219,8 @@
             </div>
         </div>
 
-        <!-- 预测卡片 -->
         <div class="main-result-dark" id="predictCard">
-            <div class="watermark">鹰眼通·超级公式精算师</div>
+            <div class="watermark">鹰眼通·智算首发</div>
             
             <div class="res-label">
                 <span id="predictTitle">🔥 目标预测结果</span>
@@ -329,7 +234,6 @@
             <div class="disclaimer" id="extraTip" style="display:none;">💡 注：同个值越多，开出概率越小。仅展示高度集中的绝杀尾。</div>
         </div>
 
-        <!-- 四宫格监控 -->
         <div class="stats-grid" id="statsPanel">
             <div class="glass-card-light stat-card">
                 <div class="stat-label">公式命中率</div>
@@ -358,7 +262,6 @@
             </div>
         </div>
 
-        <!-- 排行榜展示区 -->
         <div class="glass-card-light detail-panel" id="rankPanel" style="display: none;">
             <div class="panel-title" style="border-left-color: #fbbf24;">
                 <span id="rankPanelTitle">🏆 公式胜率排行榜</span>
@@ -368,7 +271,6 @@
             </div>
         </div>
 
-        <!-- 明细面板 -->
         <div class="glass-card-light detail-panel" id="detailPanel">
             <div class="panel-title" onclick="togglePanel('log')" style="border-left-color: #8b5cf6;">
                 <span>📋 独立回测验证记录</span>
@@ -376,6 +278,38 @@
             </div>
             <div class="panel-content hide" id="contentLog">
                 <div class="log-list" id="logList"></div>
+            </div>
+        </div>
+
+        <!-- 使用说明面板 -->
+        <div class="glass-card-light instruction-panel">
+            <div class="panel-title" onclick="togglePanel('help')" style="border-left-color: #0ea5e9;">
+                <span>📖 核心功能与实战指南</span>
+                <span id="arrowHelp" style="color:var(--text-sub); font-size:12px;">展开 ▼</span>
+            </div>
+            <div class="panel-content hide" id="contentHelp">
+                <div class="help-content">
+                    <div class="help-block">
+                        <div class="help-title">👑 为什么分为单数期和双数期？</div>
+                        <div class="help-text">系统实行【单期免费，双期加密】策略。双数期属于极高盈利盘口，系统会自动锁定<b>胜率 >= 80% 的高阶公式</b>。免费用户仅可使用胜率 80% 以下的基础公式。</div>
+                    </div>
+                    <div class="help-block">
+                        <div class="help-title">🚪 什么是“全量共振拦截”？</div>
+                        <div class="help-text">只有在【杀尾公式】选择“核心融合”时生效。19套公式交叉投票，如果最高票数不到 5 票，系统会判定为“盘口分歧”并强制观望，帮你避开高风险的烂局。</div>
+                    </div>
+                    <div class="help-block">
+                        <div class="help-title">📊 如何看懂下方的四宫格？</div>
+                        <div class="help-text">
+                            <b>命中率：</b>该公式在选定回测周期内的真实胜率。<br>
+                            <b>连对 / 连黑：</b>当前连对几期，历史最大连错几期。<br>
+                            <strong>⚠️ 铁律：</strong>如果当前连黑达到了历史最大连黑，请务必停手！系统马上要反弹了。
+                        </div>
+                    </div>
+                    <div class="help-block" style="background: #fff1f2; border-color: #fecdd3;">
+                        <div class="help-title" style="color: #e11d48;">🔒 如何升级 VIP？</div>
+                        <div class="help-text">遇到双数期锁定弹窗时，直接点击弹窗内的<b>【联系客服开通】</b>按钮，联系群主获取专属授权即可解锁全部功能。</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -391,6 +325,19 @@
         const zodiacAge2024 = {"龙":1, "兔":2, "虎":3, "牛":4, "鼠":5, "猪":6, "狗":7, "鸡":8, "猴":9, "羊":10, "马":11, "蛇":12};
         const doorMap = {"1门": [1,2,3,4,5,6,7,8,9], "2门": [10,11,12,13,14,15,16,17,18], "3门": [19,20,21,22,23,24,25,26,27], "4门": [28,29,30,31,32,33,34,35,36,37], "5门": [38,39,40,41,42,43,44,45,46,47,48,49]};
         const calendarKillMap = {"鼠": [2,8,16,22,25,26,28,42,47], "马": [2,8,16,22,25,26,28,42,47],"虎": [14,20,26,32,41], "猴": [14,20,26,32,41],"龙": [4,10,25,30,46], "狗": [4,10,25,30,46],"蛇": [9,23,27,37,39], "猪": [9,23,27,37,39],"牛": [7,15,32,45,47], "羊": [7,15,32,45,47],"兔": [11,13,25,31,40,44], "鸡": [11,13,25,31,40,44]};
+        
+        const waveMap = {
+            1: {m: '蓝', b: '红'}, 2: {m: '绿', b: '蓝'}, 3: {m: '蓝', b: '绿'}, 4: {m: '绿', b: '红'}, 5: {m: '红', b: '蓝'},
+            6: {m: '蓝', b: '红'}, 7: {m: '红', b: '蓝'}, 8: {m: '绿', b: '红'}, 9: {m: '蓝', b: '绿'}, 10: {m: '红', b: '蓝'},
+            11: {m: '绿', b: '蓝'}, 12: {m: '红', b: '绿'}, 13: {m: '绿', b: '蓝'}, 14: {m: '蓝', b: '红'}, 15: {m: '绿', b: '蓝'},
+            16: {m: '红', b: '绿'}, 17: {m: '绿', b: '蓝'}, 18: {m: '红', b: '绿'}, 19: {m: '绿', b: '蓝'}, 20: {m: '红', b: '绿'},
+            21: {m: '绿', b: '蓝'}, 22: {m: '红', b: '蓝'}, 23: {m: '绿', b: '蓝'}, 24: {m: '蓝', b: '红'}, 25: {m: '红', b: '绿'},
+            26: {m: '绿', b: '红'}, 27: {m: '红', b: '绿'}, 28: {m: '蓝', b: '红'}, 29: {m: '绿', b: '红'}, 30: {m: '蓝', b: '绿'},
+            31: {m: '绿', b: '红'}, 32: {m: '蓝', b: '绿'}, 33: {m: '红', b: '绿'}, 34: {m: '绿', b: '蓝'}, 35: {m: '蓝', b: '红'},
+            36: {m: '绿', b: '蓝'}, 37: {m: '红', b: '绿'}, 38: {m: '蓝', b: '红'}, 39: {m: '绿', b: '蓝'}, 40: {m: '蓝', b: '红'},
+            41: {m: '红', b: '绿'}, 42: {m: '绿', b: '红'}, 43: {m: '蓝', b: '绿'}, 44: {m: '红', b: '蓝'}, 45: {m: '绿', b: '蓝'},
+            46: {m: '红', b: '绿'}, 47: {m: '蓝', b: '红'}, 48: {m: '绿', b: '蓝'}, 49: {m: '蓝', b: '红'}
+        };
 
         const f1Map = {"鼠":5,"牛":0,"虎":3,"兔":9,"龙":5,"蛇":2,"马":7,"羊":0,"猴":0,"鸡":4,"狗":5,"猪":6};
         const f2Map = {0:8, 1:5, 2:4, 3:7, 4:9, 5:3, 6:1, 7:2, 8:6, 9:0};
@@ -405,65 +352,52 @@
         const categoryConfig = {
             tailKill: [
                 { id: "99", name: "👑 核心融合：全量共振杀尾" },
-                { id: "1", name: "杀尾公式1：极光过滤" },
-                { id: "2", name: "杀尾公式2：混沌剥离" },
-                { id: "7", name: "杀尾公式3：量子排异" },
-                { id: "20", name: "杀尾公式4：波合尾数熔断" },
-                { id: "21", name: "杀尾公式5：多维落球解析" },
-                { id: "22", name: "杀尾公式6：生肖尾数共振" },
-                { id: "23", name: "杀尾公式7：期数合数对冲" },
-                { id: "24", name: "杀尾公式8：生肖合数叠加" },
-                { id: "25", name: "杀尾公式9：期月波合极值" },
-                { id: "26", name: "杀尾公式10：日月特肖矩阵" },
-                { id: "27", name: "杀尾公式11：波色特肖共振" },
-                { id: "28", name: "杀尾公式12：总分波肖剥离" },
-                { id: "29", name: "杀尾公式13：尾数合数转换" },
-                { id: "30", name: "杀尾公式14：期波肖合模型" },
-                { id: "31", name: "杀尾公式15：月波合尾交叉" },
-                { id: "32", name: "杀尾公式16：月波合特尾锚点" },
-                { id: "33", name: "杀尾公式17：日总合尾防线" },
-                { id: "34", name: "杀尾公式18：波肖合特熔断" },
-                { id: "35", name: "杀尾公式19：波肖尾支共振" },
-                { id: "36", name: "杀尾公式20：波合特尾过滤" },
-                { id: "37", name: "杀尾公式21：波肖双尾追踪" },
-                { id: "38", name: "杀尾公式22：波特肖双尾杀" }
+                { id: "1", name: "杀尾公式1：极光过滤" }, { id: "2", name: "杀尾公式2：混沌剥离" }, { id: "7", name: "杀尾公式3：量子排异" },
+                { id: "20", name: "杀尾公式4：波合尾数熔断" }, { id: "21", name: "杀尾公式5：多维落球解析" }, { id: "22", name: "杀尾公式6：生肖尾数共振" }, { id: "23", name: "杀尾公式7：期数合数对冲" }, { id: "24", name: "杀尾公式8：生肖合数叠加" }, { id: "25", name: "杀尾公式9：期月波合极值" }, { id: "26", name: "杀尾公式10：日月特肖矩阵" }, { id: "27", name: "杀尾公式11：波色特肖共振" }, { id: "28", name: "杀尾公式12：总分波肖剥离" }, { id: "29", name: "杀尾公式13：尾数合数转换" }, { id: "30", name: "杀尾公式14：期波肖合模型" }, { id: "31", name: "杀尾公式15：月波合尾交叉" }, { id: "32", name: "杀尾公式16：月波合特尾锚点" }, { id: "33", name: "杀尾公式17：日总合尾防线" }, { id: "34", name: "杀尾公式18：波肖合特熔断" }, { id: "35", name: "杀尾公式19：波肖尾支共振" }, { id: "36", name: "杀尾公式20：波合特尾过滤" }, { id: "37", name: "杀尾公式21：波肖双尾追踪" }, { id: "38", name: "杀尾公式22：波特肖双尾杀" }
             ],
-            tailPredict: [
-                { id: "5", name: "出尾公式1：动量锁定" },
-                { id: "6", name: "出尾公式2：神经网络" }
+            tailPredict: [ 
+                { id: "5", name: "出尾公式1：动量锁定" }, { id: "6", name: "出尾公式2：神经网络" } 
+            ],
+            wavePredict: [
+                { id: "50", name: "出波公式1：波色主防映射" }
             ],
             zodiacKill: [
-                { id: "8", name: "杀肖公式1：五行排异" },
-                { id: "12", name: "杀肖公式2：因子对冲" },
-                { id: "13", name: "杀肖公式3：周期共振" },
-                { id: "14", name: "杀肖公式4：时空加权" },
-                { id: "15", name: "杀肖公式5：偏移建模" },
-                { id: "16", name: "杀肖公式6：极值反转" },
-                { id: "17", name: "杀肖公式7：动量叠加" },
-                { id: "18", name: "杀肖公式8：混合贝叶斯" },
-                { id: "19", name: "杀肖公式9：惯性追踪" }
+                { id: "8", name: "杀肖公式1：五行排异" }, { id: "12", name: "杀肖公式2：因子对冲" }, { id: "13", name: "杀肖公式3：周期共振" }, { id: "14", name: "杀肖公式4：时空加权" }, { id: "15", name: "杀肖公式5：偏移建模" }, { id: "16", name: "杀肖公式6：极值反转" }, { id: "17", name: "杀肖公式7：动量叠加" }, { id: "18", name: "杀肖公式8：混合贝叶斯" }, { id: "19", name: "杀肖公式9：惯性追踪" }
             ],
-            zodiacPredict: [
-                { id: "3", name: "出肖公式1：地支加权" },
-                { id: "4", name: "出肖公式2：马尔可夫" },
-                { id: "9", name: "出肖公式3：五行极化" }
+            zodiacPredict: [ 
+                { id: "3", name: "出肖公式1：地支加权" }, { id: "4", name: "出肖公式2：马尔可夫" }, { id: "9", name: "出肖公式3：五行极化" } 
             ],
-            codeKill: [
-                { id: "11", name: "杀码公式1：历法绝杀" } 
+            codeRange: [
+                { id: "51", name: "范围公式1：A/B点左延右延7码" }
             ],
-            tactic: [
-                { id: "10", name: "围码公式1：盲区捕捉" } 
-            ]
+            codeKill: [ { id: "11", name: "杀码公式1：历法绝杀" } ],
+            tactic: [ { id: "10", name: "围码公式1：盲区捕捉" } ]
         };
 
         let SEQ = [];
-        let currentData = null;
         let currentTab = 'tailKill';
         let currentFormulaId = '99';
+        let isVipUser = false; 
+        let currentNextPeriod = 0; 
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
-        function togglePanel(type) { const content = document.getElementById('contentLog'); const arrow = document.getElementById('arrowLog'); content.classList.toggle('hide'); arrow.innerText = content.classList.contains('hide') ? '展开 ▼' : '收起 ▲'; }
+        
+        function togglePanel(type) { 
+            if(type === 'log') {
+                const content = document.getElementById('contentLog'); 
+                const arrow = document.getElementById('arrowLog'); 
+                content.classList.toggle('hide'); 
+                arrow.innerText = content.classList.contains('hide') ? '展开 ▼' : '收起 ▲'; 
+            } else if (type === 'help') {
+                const content = document.getElementById('contentHelp'); 
+                const arrow = document.getElementById('arrowHelp'); 
+                content.classList.toggle('hide'); 
+                arrow.innerText = content.classList.contains('hide') ? '展开 ▼' : '收起 ▲'; 
+            }
+        }
+        
         function getZodiac(num) { for(let z in zodiacMap) { if(zodiacMap[z].includes(num)) return z; } return ""; }
+        function getWaveStr(n) { if (redWave.includes(n)) return "红波"; if (blueWave.includes(n)) return "蓝波"; return "绿波"; }
         function getWaveCss(n) { if (redWave.includes(n)) return "wave-red"; if (blueWave.includes(n)) return "wave-blue"; return "wave-green"; }
         function padZero(n) { return n < 10 ? '0'+n : n.toString(); }
         function calcMod49(num) { let r = num % 49; return r === 0 ? 49 : r; }
@@ -476,30 +410,21 @@
         }
 
         function getBlindDoors(flatNums, specialNum) {
-            let allNums = [...flatNums, specialNum];
-            let blindDoors = [];
+            let allNums = [...flatNums, specialNum]; let blindDoors = [];
             for (let d in doorMap) {
                 let hasNum = false;
                 for (let n of doorMap[d]) { if (allNums.includes(n)) { hasNum = true; break; } }
                 if (!hasNum) blindDoors.push(d);
-            }
-            return blindDoors;
+            } return blindDoors;
         }
 
         function getWaveNum(n) { if (redWave.includes(n)) return 1; if (blueWave.includes(n)) return 2; return 3; }
         function getZodiacNum(n) { let z = getZodiac(n); const zOrder = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]; return zOrder.indexOf(z) + 1; }
 
         function calcCustomTail(fid, pv) {
-            let flat = pv.flat;
-            if (!flat || flat.length < 6) { flat = [1,2,3,4,5,6]; }
-            let t = pv.num;
-            let total = flat.reduce((a,b)=>a+b, 0) + t;
-            
-            let d = new Date((pv.date || "").replace(/-/g, '/'));
-            let month = isNaN(d.getMonth()) ? 1 : d.getMonth() + 1;
-            let day = isNaN(d.getDate()) ? 1 : d.getDate();
-            let pNum = parseInt(pv.period) || 1;
-            
+            let flat = pv.flat; if (!flat || flat.length < 6) { flat = [1,2,3,4,5,6]; }
+            let t = pv.num; let total = flat.reduce((a,b)=>a+b, 0) + t;
+            let d = new Date((pv.date || "").replace(/-/g, '/')); let month = isNaN(d.getMonth()) ? 1 : d.getMonth() + 1; let day = isNaN(d.getDate()) ? 1 : d.getDate(); let pNum = parseInt(pv.period) || 1;
             let v = 0;
             if (fid === "20") v = getWaveNum(flat[3]) + getSum(flat[4]) + (flat[0] % 10);
             else if (fid === "21") v = month + getSum(flat[0]) + getSum(flat[3]) + getSum(flat[5]);
@@ -520,33 +445,47 @@
             else if (fid === "36") v = getWaveNum(flat[2]) + getWaveNum(flat[3]) + getSum(flat[4]) + getSum(t) + (flat[3] % 10);
             else if (fid === "37") v = getWaveNum(flat[4]) + getZodiacNum(flat[0]) + getZodiacNum(flat[3]) + (flat[0] % 10) + (flat[1] % 10);
             else if (fid === "38") v = getWaveNum(flat[5]) + getWaveNum(t) + getZodiacNum(flat[1]) + (flat[1] % 10) + (flat[4] % 10);
-            
             return v % 10;
+        }
+
+        // 特码中心点范围公式
+        function calcRangeFormula(prevPrevNum, prevNum) {
+            // A = (上上期 + 上期) - 50，如果 <= 0 则 +50
+            let A = prevPrevNum + prevNum - 50;
+            while (A <= 0) A += 50;
+            
+            // B = (A + 上期) - 50，如果 <= 0 则 +50
+            let B = A + prevNum - 50;
+            while (B <= 0) B += 50;
+            
+            // 左延7码，右延7码，总计15码
+            let range = [];
+            for (let i = B - 7; i <= B + 7; i++) {
+                let n = i;
+                if (n < 1) n += 49;
+                if (n > 49) n -= 49;
+                range.push(n);
+            }
+            return { center: B, range: [...new Set(range)].sort((a,b)=>a-b) };
         }
 
         function switchTab(tabId) {
             currentTab = tabId;
-            
-            // Tab 高亮切换
             document.querySelectorAll('.tabs-left .tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-type') === tabId);
             });
             document.querySelector('.btn-rank-fixed').style.opacity = (tabId === 'rank') ? '1' : '0.8';
             document.querySelector('.btn-rank-fixed').style.boxShadow = (tabId === 'rank') ? '0 0 0 3px rgba(251, 191, 36, 0.4)' : '0 4px 10px rgba(217, 119, 6, 0.3)';
-
             document.getElementById('extraTip').style.display = (tabId === 'tailKill') ? 'block' : 'none';
 
             if (tabId === 'rank') {
                 document.getElementById('normalSelectArea').style.display = 'none';
                 document.getElementById('runSingleBtnArea').style.display = 'none';
                 document.getElementById('rankArea').style.display = 'block';
-                
                 document.getElementById('predictCard').style.display = 'none';
                 document.getElementById('statsPanel').style.display = 'none';
                 document.getElementById('detailPanel').style.display = 'none';
                 document.getElementById('rankPanel').style.display = 'block';
-                
-                // 点击进入排行榜时，默认选中刚才所在的分类
                 let defaultRankTab = (currentTab === 'rank') ? 'tailKill' : currentTab;
                 document.getElementById('selRankCategory').value = defaultRankTab;
                 generateRanking(); 
@@ -554,12 +493,10 @@
                 document.getElementById('normalSelectArea').style.display = 'block';
                 document.getElementById('runSingleBtnArea').style.display = 'flex';
                 document.getElementById('rankArea').style.display = 'none';
-                
                 document.getElementById('predictCard').style.display = 'block';
                 document.getElementById('statsPanel').style.display = 'grid';
                 document.getElementById('detailPanel').style.display = 'block';
                 document.getElementById('rankPanel').style.display = 'none';
-
                 updateSelectOptions();
                 runSingle();
             }
@@ -569,10 +506,11 @@
             const sel = document.getElementById('selFormula');
             sel.innerHTML = '';
             let list = categoryConfig[currentTab];
+            
             list.forEach(item => {
                 let opt = document.createElement('option');
-                opt.value = item.id;
-                opt.innerText = item.name;
+                opt.value = item.id; 
+                opt.innerText = item.name; 
                 sel.appendChild(opt);
             });
             currentFormulaId = list[0].id;
@@ -582,11 +520,14 @@
             const sourceTag = document.getElementById('dataSourceTag');
             if (SEQ.length === 0) {
                 try {
-                    const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' }); if (!res.ok) throw new Error();
-                    let raw = await res.json(); sourceTag.innerText = "实盘数据"; sourceTag.style.color = "#059669"; sourceTag.style.borderColor = "#d1fae5";
+                    const res = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' }); 
+                    if (!res.ok) throw new Error();
+                    let raw = await res.json(); 
+                    sourceTag.innerText = "实盘数据"; sourceTag.style.color = "#059669"; sourceTag.style.borderColor = "#d1fae5";
                     SEQ = raw.map(x => ({ period: x.period || x.issue || x.expect, num: parseInt(x.num || x.number || x.code), date: x.date || x.time || x.openTime || "", flat: x.flat || x.codes || x.nums || x.numbers || [] })).filter(x => x.period && !isNaN(x.num) && x.num > 0);
                 } catch (err) {
-                    sourceTag.innerText = "模拟兜底"; sourceTag.style.color = "#d97706"; sourceTag.style.borderColor = "#fef3c7"; SEQ = generateMockData(600);
+                    sourceTag.innerText = "接口异常(演示)"; sourceTag.style.color = "#d97706"; sourceTag.style.borderColor = "#fef3c7"; 
+                    SEQ = generateMockData(600);
                 }
             }
             if (SEQ.length < 3) throw new Error("数据不足");
@@ -601,104 +542,24 @@
             document.getElementById('drawBalls').innerHTML = ballsHtml;
         }
 
-        function getFormulaResult(fid, index, seqData) {
-            let prev = seqData[index - 1], curr = seqData[index];
-            let prevPrev = index >= 2 ? seqData[index - 2] : null;
-            
-            let pZ = getZodiac(prev.num), pT = prev.num % 10, currDateZ = getDayZodiac(curr.date), rZ = getZodiac(curr.num), rT = curr.num % 10;
-            let isHit = false, predStr = "", actStr = `开 ${curr.num} (${rZ})`, valid = true; 
-            
-            let cFlat = curr.flat;
-            if (!cFlat || cFlat.length !== 6) { cFlat = []; let rng = curr.num; while(cFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== curr.num && !cFlat.includes(r)) cFlat.push(r); } }
-            let all7 = [...cFlat.sort((a,b)=>a-b), curr.num];
-
-            if (fid === "1") { let kT = f1Map[pZ]; isHit = (rT !== kT); predStr = `杀${kT}尾`; } 
-            else if (fid === "2") { let kT = f2Map[pT]; isHit = (rT !== kT); predStr = `杀${kT}尾`; }
-            else if (fid === "3") { let predZ = f3Map[currDateZ].split('').join(','); isHit = f3Map[currDateZ].includes(rZ); predStr = `定${predZ}`; }
-            else if (fid === "4") { let predZ = f4Map[pZ].split('').join(','); isHit = f4Map[pZ].includes(rZ); predStr = `定${predZ}`; }
-            else if (fid === "5") { let predT = f5Map[pT].split('').join(','); isHit = f5Map[pT].includes(String(rT)); predStr = `定${predT}尾`; }
-            else if (fid === "6") { let predT = f6Map[currDateZ].split('').join(','); isHit = f6Map[currDateZ].includes(String(rT)); predStr = `定${predT}尾`; }
-            else if (fid === "7") { let kT = f7Map[pT]; isHit = !kT.includes(rT); predStr = `杀${kT.join(',')}尾`; }
-            else if (fid === "8") { let badZ = f8Map[currDateZ][0]; isHit = (rZ !== badZ); predStr = `杀${badZ}`; }
-            else if (fid === "9") { let wuxing = zodiacToWuxing[rZ]; isHit = f9Map[currDateZ].includes(wuxing); predStr = `定${f9Map[currDateZ]}行`; }
-            else if (fid === "10") {
-                let pFlat = prev.flat;
-                if (!pFlat || pFlat.length !== 6) { pFlat = []; let rng = prev.num; while(pFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== prev.num && !pFlat.includes(r)) pFlat.push(r); } }
-                let blind = getBlindDoors(pFlat, prev.num);
-                if (blind.length > 0) {
-                    predStr = blind.join(','); isHit = blind.some(d => all7.some(n => doorMap[d].includes(n))); actStr = `开[${all7.join(',')}]`;
-                } else { valid = false; }
-            }
-            else if (fid === "11") { let killArr = calendarKillMap[currDateZ]; isHit = !killArr.includes(curr.num); predStr = `杀[${killArr.map(n=>padZero(n)).join(',')}]`; }
-            else if (fid === "12") { let pStr = curr.period.toString(); let sum = pStr.split('').reduce((a,b)=>a+parseInt(b),0); let killNum = calcMod49(sum + 11); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            else if (fid === "13") { let pMod = calcMod49(parseInt(curr.period)); let tAge = zodiacAge2024[getZodiac(prev.num)] || 1; let killNum = calcMod49(pMod + tAge + 7); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            else if (fid === "14") { let dAge = zodiacAge2024[currDateZ] || 1; let killNum = calcMod49(dAge + 8); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            else if (fid === "15") { let killNum = calcMod49(prev.num + 5); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            else if (fid === "16") {
-                let pFlat = prev.flat; if (!pFlat || pFlat.length !== 6) { pFlat = []; let rng = prev.num; while(pFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== prev.num && !pFlat.includes(r)) pFlat.push(r); } }
-                let minFlat = Math.min(...pFlat); let killNum = calcMod49(minFlat + 47 - prev.num); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`;
-            }
-            else if (fid === "17") { 
-                if(!prevPrev) { valid = false; } 
-                else { let tSum = getSum(prev.num); let pSum = getSum(prevPrev.num); let killNum = calcMod49(tSum + pSum); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            }
-            else if (fid === "18") { 
-                if(!prevPrev) { valid = false; } 
-                else { let pSum = getSum(prevPrev.num); let killNum = calcMod49(prev.num + pSum); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            }
-            else if (fid === "19") { let killNum = calcMod49(prev.num + 2); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
-            else if (parseInt(fid) >= 20 && parseInt(fid) <= 38) {
-                let kT = calcCustomTail(fid, prev);
-                isHit = (rT !== kT);
-                predStr = `杀${kT}尾`;
-            }
-            else if (fid === "99") {
-                let tailsCount = Array(10).fill(0);
-                for (let i = 20; i <= 38; i++) {
-                    let kT = calcCustomTail(i.toString(), prev);
-                    tailsCount[kT]++;
-                }
-                let maxCount = Math.max(...tailsCount);
-                let killTails = [];
-                for(let t=0; t<10; t++) {
-                    if(tailsCount[t] === maxCount) killTails.push(t);
-                }
-
-                if (maxCount < 5) {
-                    valid = false; predStr = `观望`;
-                } else {
-                    isHit = !killTails.includes(rT);
-                    predStr = `杀[${killTails.join(',')}]尾`;
-                }
-            }
-
-            if(predStr.length > 25) predStr = predStr.substring(0, 23) + "...";
-            if(actStr.length > 22) actStr = actStr.substring(0, 20) + "...]";
-            return { isHit, predStr, actStr, valid };
-        }
-
-        function executeBacktest(fid, seqData, testLen) {
-            let actualTestLen = Math.min(testLen, seqData.length - 2); 
-            let startIdx = seqData.length - actualTestLen;
-            let hits = 0, curWin = 0, maxWin = 0, curLoss = 0, maxLoss = 0, validTests = 0, skippedTests = 0; let historyLogs = [];
-
-            for (let i = startIdx; i < seqData.length; i++) {
-                if (i < 2) continue; 
-                let res = getFormulaResult(fid, i, seqData);
-                if (!res.valid) { skippedTests++; continue; }
-                
-                validTests++;
-                if (res.isHit) { hits++; curWin++; curLoss = 0; if (curWin > maxWin) maxWin = curWin; } 
-                else { curWin = 0; curLoss++; if (curLoss > maxLoss) maxLoss = curLoss; }
-                historyLogs.push({ period: seqData[i].period, predStr: res.predStr, actStr: res.actStr, isHit: res.isHit });
-            }
-            if(validTests === 0) validTests = 1;
-            let rate = (hits / validTests * 100).toFixed(1);
-            return { hits, validTests, skippedTests, curWin, maxWin, curLoss, maxLoss, rate, historyLogs };
+        function generateMockData(count) {
+            let mock = []; let basePeriod = 2024001; let date = new Date();
+            for(let i=0; i<count; i++) { 
+                let mockFlat = []; 
+                while(mockFlat.length < 6) { let r = Math.floor(Math.random() * 49) + 1; if(!mockFlat.includes(r)) mockFlat.push(r); } 
+                mockFlat.sort((a,b)=>a-b);
+                mock.push({ period: (basePeriod + i).toString(), num: Math.floor(Math.random() * 49) + 1, date: date.toISOString().split('T')[0], flat: mockFlat }); 
+                date.setDate(date.getDate() + 1);
+            } 
+            return mock;
         }
 
         function runSingle() {
             if (SEQ.length < 3) return;
+            const targetEl = document.getElementById('targetResult');
+            targetEl.classList.remove('locked');
+            targetEl.classList.remove('dim');
+
             currentFormulaId = document.getElementById('selFormula').value;
             const selectedLen = parseInt(document.getElementById('selPeriod').value);
             const fid = currentFormulaId;
@@ -710,10 +571,11 @@
             });
 
             let lastRow = SEQ[SEQ.length - 1]; let lastNum = lastRow.num; let lastTail = lastNum % 10; let lastZ = getZodiac(lastNum);
-            let nextPeriod = parseInt(lastRow.period) + 1; let nextDateZ = getDayZodiac(new Date(new Date(lastRow.date).getTime() + 86400000).toISOString().split('T')[0]);
-            let predText = ""; 
-            let resonanceHtml = "";
-            let isDim = false;
+            let nextPeriod = parseInt(lastRow.period) + 1; 
+            currentNextPeriod = nextPeriod;
+            
+            let nextDateZ = getDayZodiac(new Date(new Date(lastRow.date).getTime() + 86400000).toISOString().split('T')[0]);
+            let predText = ""; let resonanceHtml = ""; let isDim = false;
             
             let virtualPrev = SEQ[SEQ.length-1], virtualPrevPrev = SEQ[SEQ.length-2];
             let vPZ = getZodiac(virtualPrev.num), vPT = virtualPrev.num % 10;
@@ -760,9 +622,7 @@
                 }
                 let maxCount = Math.max(...tailsCount);
                 let killTails = [];
-                for(let t=0; t<10; t++) {
-                    if(tailsCount[t] === maxCount) killTails.push(t);
-                }
+                for(let t=0; t<10; t++) { if(tailsCount[t] === maxCount) killTails.push(t); }
                 
                 if (maxCount < 5) {
                     predText = `分歧观望`;
@@ -771,27 +631,54 @@
                 } else {
                     predText = `绝杀 ${killTails.join(',')} 尾`;
                     resonanceHtml = `👑 <b>全量19套公式共振统合：</b><br>`;
-                    resonanceHtml += `<span>${killTails.join(',')}尾</span> (被 ${maxCount} 个公式算出，极度危险)<br>`;
+                    resonanceHtml += `<span>${killTails.join(',')}尾</span> (${maxCount}套系统高度重合，下期开出概率极低，<b style="color:var(--gold)">已锁定绝杀</b>)<br>`;
                 }
+            }
+            else if (fid === "50") {
+                let wData = waveMap[lastNum];
+                predText = `主${wData.m}波 · 防${wData.b}波`;
+            }
+            else if (fid === "51") {
+                let rangeRes = calcRangeFormula(virtualPrevPrev.num, virtualPrev.num);
+                predText = `特出范围: ${padZero(rangeRes.range[0])}~${padZero(rangeRes.range[rangeRes.range.length-1])}`;
+                // 主卡片显示范围太大容易折行，压缩显示
+                if(predText.length > 16) {
+                    targetEl.style.fontSize = '24px';
+                } else {
+                    targetEl.style.fontSize = '32px';
+                }
+                resonanceHtml = `🎯 <b>智算师核心推演结果：</b><br>中心点 B = <span>${rangeRes.center}</span><br>包含号码：<br>[ ${rangeRes.range.map(n=>padZero(n)).join(', ')} ]<br><br>（左延右延7码，共15码）`;
             }
 
             document.getElementById('predictTitle').innerText = `🔥 ${currentFormulaName}`; 
             document.getElementById('lastPeriodInfo').innerText = `第 ${nextPeriod} 期`; 
             document.getElementById('prevInfo').innerText = `上期开奖: ${lastNum} (${lastZ},尾${lastTail})`;
-            
-            const targetEl = document.getElementById('targetResult');
-            targetEl.innerText = predText; 
-            if(isDim) targetEl.classList.add('dim'); else targetEl.classList.remove('dim');
-            
-            if (fid === "99") {
-                document.getElementById('resonanceDetail').style.display = 'block';
-                document.getElementById('resonanceDetail').innerHTML = resonanceHtml;
-            } else {
-                document.getElementById('resonanceDetail').style.display = 'none';
-            }
 
             let bt = executeBacktest(fid, SEQ, selectedLen);
-            
+            let rate = parseFloat(bt.rate);
+            let isDouble = (nextPeriod % 2 === 0);
+            let isHighWin = rate >= 80;
+            let isLocked = (isDouble && !isVipUser && isHighWin);
+
+            if (isLocked) {
+                targetEl.innerHTML = `<div class="lock-icon">🔒</div><div>核心内容仅限 VIP 查看</div>`;
+                targetEl.classList.add('locked');
+                document.getElementById('resonanceDetail').style.display = 'none';
+                
+                let reason = `系统检测到双数期限制。<br>该公式当前回测胜率高达 <b>${bt.rate}%</b>（超过80%），属于高阶核心算法，请升级 VIP 解锁。`;
+                document.getElementById('vipLockReason').innerHTML = reason;
+                document.getElementById('vipLockModal').classList.add('show');
+            } else {
+                targetEl.innerText = predText; 
+                if(isDim) targetEl.classList.add('dim'); 
+                if (fid === "99" || fid === "51") {
+                    document.getElementById('resonanceDetail').style.display = 'block';
+                    document.getElementById('resonanceDetail').innerHTML = resonanceHtml;
+                } else {
+                    document.getElementById('resonanceDetail').style.display = 'none';
+                }
+            }
+
             document.getElementById('statSampleLen').innerText = bt.validTests;
             document.getElementById('statHitRate').innerText = bt.rate + "%";
             document.getElementById('statHitCount').innerText = `(${bt.hits} / ${bt.validTests})`;
@@ -808,37 +695,146 @@
             document.getElementById('logList').innerHTML = logHtml;
         }
 
-        function onPeriodChange() {
-            if (currentTab === 'rank') generateRanking();
-            else runSingle();
+        function onPeriodChange() { if (currentTab === 'rank') generateRanking(); else runSingle(); }
+
+        function getFormulaResult(fid, index, seqData) {
+            let prev = seqData[index - 1], curr = seqData[index];
+            let prevPrev = index >= 2 ? seqData[index - 2] : null;
+            
+            let pZ = getZodiac(prev.num), pT = prev.num % 10, currDateZ = getDayZodiac(curr.date), rZ = getZodiac(curr.num), rT = curr.num % 10;
+            let isHit = false, predStr = "", actStr = `开 ${curr.num} (${rZ})`, valid = true; 
+            
+            let cFlat = curr.flat;
+            if (!cFlat || cFlat.length !== 6) { cFlat = []; let rng = curr.num; while(cFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== curr.num && !cFlat.includes(r)) cFlat.push(r); } }
+            let all7 = [...cFlat.sort((a,b)=>a-b), curr.num];
+
+            if (fid === "1") { let kT = f1Map[pZ]; isHit = (rT !== kT); predStr = `杀${kT}尾`; } 
+            else if (fid === "2") { let kT = f2Map[pT]; isHit = (rT !== kT); predStr = `杀${kT}尾`; }
+            else if (fid === "3") { let predZ = f3Map[currDateZ].split('').join(','); isHit = f3Map[currDateZ].includes(rZ); predStr = `定${predZ}`; }
+            else if (fid === "4") { let predZ = f4Map[pZ].split('').join(','); isHit = f4Map[pZ].includes(rZ); predStr = `定${predZ}`; }
+            else if (fid === "5") { let predT = f5Map[pT].split('').join(','); isHit = f5Map[pT].includes(String(rT)); predStr = `定${predT}尾`; }
+            else if (fid === "6") { let predT = f6Map[currDateZ].split('').join(','); isHit = f6Map[currDateZ].includes(String(rT)); predStr = `定${predT}尾`; }
+            else if (fid === "7") { let kT = f7Map[pT]; isHit = !kT.includes(rT); predStr = `杀${kT.join(',')}尾`; }
+            else if (fid === "8") { let badZ = f8Map[currDateZ][0]; isHit = (rZ !== badZ); predStr = `杀${badZ}`; }
+            else if (fid === "9") { let wuxing = zodiacToWuxing[rZ]; isHit = f9Map[currDateZ].includes(wuxing); predStr = `定${f9Map[currDateZ]}行`; }
+            else if (fid === "10") {
+                let pFlat = prev.flat;
+                if (!pFlat || pFlat.length !== 6) { pFlat = []; let rng = prev.num; while(pFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== prev.num && !pFlat.includes(r)) pFlat.push(r); } }
+                let blind = getBlindDoors(pFlat, prev.num);
+                if (blind.length > 0) { predStr = blind.join(','); isHit = blind.some(d => all7.some(n => doorMap[d].includes(n))); actStr = `开[${all7.join(',')}]`; } 
+                else { valid = false; }
+            }
+            else if (fid === "11") { let killArr = calendarKillMap[currDateZ]; isHit = !killArr.includes(curr.num); predStr = `杀[${killArr.map(n=>padZero(n)).join(',')}]`; }
+            else if (fid === "12") { let pStr = curr.period.toString(); let sum = pStr.split('').reduce((a,b)=>a+parseInt(b),0); let killNum = calcMod49(sum + 11); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            else if (fid === "13") { let pMod = calcMod49(parseInt(curr.period)); let tAge = zodiacAge2024[getZodiac(prev.num)] || 1; let killNum = calcMod49(pMod + tAge + 7); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            else if (fid === "14") { let dAge = zodiacAge2024[currDateZ] || 1; let killNum = calcMod49(dAge + 8); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            else if (fid === "15") { let killNum = calcMod49(prev.num + 5); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            else if (fid === "16") {
+                let pFlat = prev.flat; if (!pFlat || pFlat.length !== 6) { pFlat = []; let rng = prev.num; while(pFlat.length < 6) { let r = (rng * 7 + 13) % 49 + 1; if (r !== prev.num && !pFlat.includes(r)) pFlat.push(r); } }
+                let minFlat = Math.min(...pFlat); let killNum = calcMod49(minFlat + 47 - prev.num); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`;
+            }
+            else if (fid === "17") { 
+                if(!prevPrev) { valid = false; } 
+                else { let tSum = getSum(prev.num); let pSum = getSum(prevPrev.num); let killNum = calcMod49(tSum + pSum); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            }
+            else if (fid === "18") { 
+                if(!prevPrev) { valid = false; } 
+                else { let pSum = getSum(prevPrev.num); let killNum = calcMod49(prev.num + pSum); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            }
+            else if (fid === "19") { let killNum = calcMod49(prev.num + 2); isHit = (rZ !== getZodiac(killNum)); predStr = `杀${padZero(killNum)}(${getZodiac(killNum)})`; }
+            else if (parseInt(fid) >= 20 && parseInt(fid) <= 38) {
+                let kT = calcCustomTail(fid, prev);
+                isHit = (rT !== kT); predStr = `杀${kT}尾`;
+            }
+            else if (fid === "99") {
+                let tailsCount = Array(10).fill(0);
+                for (let i = 20; i <= 38; i++) { let kT = calcCustomTail(i.toString(), prev); tailsCount[kT]++; }
+                let maxCount = Math.max(...tailsCount);
+                let killTails = [];
+                for(let t=0; t<10; t++) { if(tailsCount[t] === maxCount) killTails.push(t); }
+
+                if (maxCount < 5) { valid = false; predStr = `观望`; } 
+                else { isHit = !killTails.includes(rT); predStr = `杀[${killTails.join(',')}]尾`; }
+            }
+            else if (fid === "50") {
+                let wData = waveMap[prev.num];
+                let realWave = getWaveStr(curr.num);
+                isHit = (realWave.includes(wData.m) || realWave.includes(wData.b));
+                predStr = `主${wData.m} 防${wData.b}`;
+                actStr = `开${curr.num} (${realWave})`;
+            }
+            else if (fid === "51") {
+                if(!prevPrev) { valid = false; }
+                else {
+                    let rangeRes = calcRangeFormula(prevPrev.num, prev.num);
+                    isHit = rangeRes.range.includes(curr.num);
+                    predStr = `${padZero(rangeRes.range[0])}~${padZero(rangeRes.range[rangeRes.range.length-1])}`;
+                    actStr = `开${curr.num}`;
+                }
+            }
+
+            if(predStr.length > 25) predStr = predStr.substring(0, 23) + "...";
+            if(actStr.length > 22) actStr = actStr.substring(0, 20) + "...]";
+            return { isHit, predStr, actStr, valid };
         }
 
-        // 生成当前分类的排行榜
+        function executeBacktest(fid, seqData, testLen) {
+            let actualTestLen = Math.min(testLen, seqData.length - 2); 
+            let startIdx = seqData.length - actualTestLen;
+            let hits = 0, curWin = 0, maxWin = 0, curLoss = 0, maxLoss = 0, validTests = 0, skippedTests = 0; let historyLogs = [];
+
+            for (let i = startIdx; i < seqData.length; i++) {
+                if (i < 2) continue; 
+                let res = getFormulaResult(fid, i, seqData);
+                if (!res.valid) { skippedTests++; continue; }
+                
+                validTests++;
+                if (res.isHit) { hits++; curWin++; curLoss = 0; if (curWin > maxWin) maxWin = curWin; } 
+                else { curWin = 0; curLoss++; if (curLoss > maxLoss) maxLoss = curLoss; }
+                historyLogs.push({ period: seqData[i].period, predStr: res.predStr, actStr: res.actStr, isHit: res.isHit });
+            }
+            if(validTests === 0) validTests = 1;
+            let rate = (hits / validTests * 100).toFixed(1);
+            return { hits, validTests, skippedTests, curWin, maxWin, curLoss, maxLoss, rate, historyLogs };
+        }
+
         function generateRanking() {
             if (SEQ.length < 3) return;
             const selectedLen = parseInt(document.getElementById('selPeriod').value);
-            const rankType = document.getElementById('selRankCategory').value; // 获取当前选择的分类
+            const rankType = document.getElementById('selRankCategory').value;
             
-            let list = categoryConfig[rankType];
-            let results = [];
+            let lastRow = SEQ[SEQ.length - 1];
+            let nextPeriod = parseInt(lastRow.period) + 1; 
+            let isDouble = (nextPeriod % 2 === 0);
             
-            showToast(`正在演算 ${document.getElementById('selRankCategory').options[document.getElementById('selRankCategory').selectedIndex].text}...`);
-            
+            let list = categoryConfig[rankType]; let results = [];
+            showToast(`正在演算...`);
             setTimeout(() => {
                 list.forEach(item => {
                     let bt = executeBacktest(item.id, SEQ, selectedLen);
-                    results.push({ fid: item.id, name: item.name, rate: parseFloat(bt.rate), hits: bt.hits, valid: bt.validTests });
+                    let rate = parseFloat(bt.rate);
+                    let isHighWin = rate >= 80;
+                    let isLocked = (isDouble && !isVipUser && isHighWin);
+                    
+                    results.push({ fid: item.id, name: item.name, rate: rate, hits: bt.hits, valid: bt.validTests, locked: isLocked });
                 });
-
+                
                 results.sort((a,b) => b.rate - a.rate);
-
+                
                 let html = '';
                 results.forEach((res, index) => {
                     let color = res.rate >= 80 ? 'var(--green)' : (res.rate >= 60 ? '#d97706' : 'var(--red)');
                     let medal = index === 0 ? '🥇 ' : (index === 1 ? '🥈 ' : (index === 2 ? '🥉 ' : ''));
+                    
+                    let badgeHtml = '';
+                    if (isDouble) {
+                        if (res.locked) badgeHtml = `<span class="badge-vip">🔒 VIP专享</span>`;
+                        else badgeHtml = `<span class="badge-free">✅ 限时免费</span>`;
+                    }
+
                     html += `
                         <div class="rank-item" onclick="jumpToFormula('${res.fid}')">
-                            <div class="rank-name">${medal}${res.name}</div>
+                            <div class="rank-name">${medal}${res.name} ${badgeHtml}</div>
                             <div class="rank-stats">
                                 <span style="color:var(--text-sub);">${res.hits}/${res.valid}</span>
                                 <span class="rank-rate" style="color:${color};">${res.rate}%</span>
@@ -854,11 +850,8 @@
         function jumpToFormula(fid) {
             let targetTab = 'tailKill';
             for (let key in categoryConfig) {
-                if (categoryConfig[key].some(x => x.id === fid)) {
-                    targetTab = key; break;
-                }
+                if (categoryConfig[key].some(x => x.id === fid)) { targetTab = key; break; }
             }
-
             switchTab(targetTab);
             document.getElementById('selFormula').value = fid;
             runSingle();
